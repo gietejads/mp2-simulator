@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- ✅ Meta and font setup -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP2 Contribution & Retirement Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ✅ Pastel-themed styling -->
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #fef6fb;
+      color: #5c4b51;
+      padding: 20px;
+      font-size: 16px;
+    }
+
+    h2, h3 {
+      color: #a678b4;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .left, .right {
+      flex: 1;
+      min-width: 300px;
+      padding: 20px;
+      background-color: #fff8fc;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .separator {
+      width: 4px;
+      background-color: orange;
+      border-radius: 2px;
+      min-height: 400px;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      font-size: 14px;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #e0cfe0;
+      border-radius: 8px;
+      background-color: #fff0f6;
+      color: #5c4b51;
+    }
+
+    button {
+      font-size: 14px;
+      padding: 10px 16px;
+      margin: 6px 0;
+      width: 100%;
+      background-color: #d8b4e2;
+      color: #4b3b47;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #caa0d6;
+    }
+
+    table {
+      width: 100%;
+      font-size: 13px;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-top: 10px;
+    }
+
+    th {
+      background-color: #f3d9fa;
+      color: #4b3b47;
+      padding: 8px;
+    }
+
+    td {
+      padding: 6px;
+      border: 1px solid #f0e0f5;
+    }
+
+    #chartContainer {
+      margin-top: 30px;
+      background-color: #fff8fc;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #a678b4;
+      background: #fff0f6;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .separator {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>MP2 Contribution & Retirement Simulator</h2>
+
+  <div class="container">
+    <!-- ✅ Left Panel -->
+    <div class="left">
+      <label for="interestMode">Interest Rate Mode:</label>
+      <select id="interestMode" onchange="toggleInterestInputs()">
+        <option value="fixed">Fixed Rate</option>
+        <option value="yearly">Yearly Rates</option>
+      </select>
+
+      <div id="interestInputs">
+        <label for="fixedRate">Projected Annual Interest Rate (%):</label>
+        <input type="number" id="fixedRate" value="6.5" step="0.1">
+      </div>
+
+      <label for="duration">Investment Duration (Years):</label>
+      <select id="duration">
+        <option value="5">5 Years</option>
+        <option value="10">10 Years</option>
+        <option value="15">15 Years</option>
+        <option value="20">20 Years</option>
+      </select>
+
+      <label for="reinvest">Dividend Option:</label>
+      <select id="reinvest">
+        <option value="true">Reinvest (Compounded)</option>
+        <option value="false">Payout (No Compounding)</option>
+      </select>
+
+      <label for="goalAmount">Fund Goal (₱):</label>
+      <input type="number" id="goalAmount" value="900000" step="1000">
+      <button onclick="calculateRequiredMonthly()">Calculate Monthly to Reach Goal</button>
+
+      <div id="result"></div>
+
+      <div id="chartContainer">
+        <canvas id="growthChart"></canvas>
+      </div>
+    </div>
+
+    <!-- ✅ Orange Separator -->
+    <div class="separator"></div>
+
+    <!-- ✅ Right Panel -->
+    <div class="right">
+      <div style="background:#fff0f6; padding:16px; border-radius:12px; margin-bottom:20px;">
+        <h3>Monthly Dividend Goal Planner</h3>
+        <label for="monthlyDividendGoal">Monthly Dividend Goal (₱):</label>
+        <input type="number" id="monthlyDividendGoal" value="2500" step="100">
+        <label for="monthlyRate">Projected Annual Interest Rate (%):</label>
+        <input type="number" id="monthlyRate" value="6.5" step="0.1">
+        <button onclick="calculateMonthlyDividendLumpSum()">Calculate Lump Sum</button>
+      </div>
+
+      <div id="lumpSumResult"></div>
+
+      <button onclick="downloadSummary()">Download Summary</button>
+      <button onclick="clearContributions()">Clear Contributions</button>
+    </div>
+  </div>
+
+  <footer>
+    Created with care by <strong>Giesel Cornel</strong> &copy; 2025. All rights reserved.
+  </footer>
+
+  <!-- ✅ JavaScript Logic -->
+  <script>
+    let chartInstance = null;
+
+    function toggleInterestInputs() {
+      const mode = document.getElementById("interestMode").value;
+      const container = document.getElementById("interestInputs");
+      container.innerHTML = "";
+
+      if (mode === "fixed") {
+        container.innerHTML = `
+          <label for="fixedRate">Projected Annual Interest Rate (%):</label>
+          <input type="number" id="fixedRate" value="6.5" step="0.1">
+        `;
+      } else {
+        container.innerHTML = `
+          <label>Projected Annual Dividend Rate per Year (%):</label><br>
+          <input type="number" id="rateY1" value="6.5" step="0.1"> Year 1<br>
+          <input type="number" id="rateY2" value="6.5" step="0.1"> Year 2<br>
+          <input type="number" id="rateY3" value="6.5" step="0.1"> Year 3<br>
+          <input type="number" id="rateY4" value="6.5" step="0.1"> Year 4<br>
+          <input type="number" id="rateY5" value="6.5" step="0.1"> Year 5<br><br>
+        `;
+      }
+    }
+
+    function getYearlyRates() {
+      const mode = document.getElementById("interestMode").value;
+      const duration = parseInt(document.getElementById("duration").value);
+
+      if (mode === "fixed") {
+        const rate = parseFloat(document.getElementById("fixedRate").value) || 0;
+        return Array(duration).fill(rate);
+      } else {
+  const rates = [
+          parseFloat(document.getElementById("rateY1").value) || 0,
+          parseFloat(document.getElementById("rateY2").value) || 0,
+          parseFloat(document.getElementById("rateY3").value) || 0,
+          parseFloat(document.getElementById("rateY4").value) || 0,
+          parseFloat(document.getElementById("rateY5").value) || 0
+        ];
+        while (rates.length < duration) {
+          rates.push(rates[rates.length - 1]); // Extend with last known rate
+        }
+        return rates;
+      }
+    }
+
+    // 💸 Calculate required lump sum to achieve monthly dividend goal
+    function calculateMonthlyDividendLumpSum() {
+      const monthlyGoal = parseFloat(document.getElementById("monthlyDividendGoal").value) || 0;
+      const annualRate = parseFloat(document.getElementById("monthlyRate").value) || 0;
+      const annualGoal = monthlyGoal * 12;
+      const r = annualRate / 100;
+
+      if (r === 0) {
+        document.getElementById("lumpSumResult").innerHTML = "<p style='color:red;'>⚠️ Interest rate must be greater than 0.</p>";
+        return;
+      }
+
+      const lumpSum = annualGoal / r;
+
+      const result = `
+        <h3>Monthly Dividend Goal Simulation</h3>
+        <table>
+          <tr>
+            <th>Monthly Goal</th>
+            <th>Annual Dividend Target</th>
+            <th>Required Lump Sum</th>
+          </tr>
+          <tr>
+            <td>₱${monthlyGoal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td>₱${annualGoal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td>₱${lumpSum.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+          </tr>
+        </table>
+        <p>This is the amount your fund must reach to sustainably pay ₱${monthlyGoal.toLocaleString()} per month at ${annualRate}% annual interest.</p>
+      `;
+
+      document.getElementById("lumpSumResult").innerHTML = result;
+    }
+
+    // 🎯 Calculate monthly contribution needed to reach fund goal
+    function calculateRequiredMonthly() {
+      const goal = parseFloat(document.getElementById("goalAmount").value) || 0;
+      const duration = parseInt(document.getElementById("duration").value);
+      const reinvest = document.getElementById("reinvest").value === "true";
+      const rates = getYearlyRates().map(r => r / 100);
+
+      let monthly = 0;
+      let totalContribution = 0;
+      let totalDividend = 0;
+
+      if (reinvest) {
+        let low = 0, high = goal * 2;
+        for (let i = 0; i < 100; i++) {
+          monthly = (low + high) / 2;
+          let fund = 0;
+          totalContribution = 0;
+          totalDividend = 0;
+
+          for (let y = 0; y < duration; y++) {
+            for (let m = 0; m < 12; m++) {
+              fund += monthly;
+              totalContribution += monthly;
+            }
+            const dividend = fund * rates[y];
+            fund += dividend;
+            totalDividend += dividend;
+          }
+
+          if (fund < goal) low = monthly;
+          else high = monthly;
+        }
+      } else {
+        const totalMonths = duration * 12;
+        monthly = goal / totalMonths;
+        totalContribution = monthly * totalMonths;
+        totalDividend = 0;
+      }
+
+      const resultHTML = `
+        <h3>Monthly Contribution Needed</h3>
+        <table>
+          <tr>
+            <th>Fund Goal</th>
+            <th>Duration</th>
+            <th>Monthly Contribution</th>
+            <th>Total Contribution</th>
+            <th>Total Dividend Earned</th>
+          </tr>
+          <tr>
+            <td>₱${goal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td>${duration} years</td>
+            <td>₱${monthly.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td>₱${totalContribution.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+            <td>₱${totalDividend.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+          </tr>
+        </table>
+        <p>This estimate assumes ${reinvest ? "reinvested dividends (compounded growth)" : "no reinvestment (linear growth)"}.</p>
+      `;
+
+      document.getElementById("result").innerHTML = resultHTML;
+      simulateChartFromMonthly(monthly);
+    }
+
+    // 📊 Render stacked bar chart with contributions, dividends, and cumulative fund
+    function simulateChartFromMonthly(monthlyContribution) {
+      const duration = parseInt(document.getElementById("duration").value);
+      const reinvest = document.getElementById("reinvest").value === "true";
+      const rates = getYearlyRates().map(r => r / 100);
+
+      let fund = 0;
+      const labels = [];
+      const contributions = [];
+      const dividends = [];
+      const cumulative = [];
+
+      for (let y = 0; y < duration; y++) {
+        for (let m = 0; m < 12; m++) {
+          fund += monthlyContribution;
+          contributions.push(monthlyContribution);
+          if (reinvest && m === 11) {
+            const dividend = fund * rates[y];
+            dividends.push(dividend);
+            fund += dividend;
+          } else {
+            dividends.push(0);
+          }
+          cumulative.push(fund);
+          labels.push(`Y${y + 1}M${m + 1}`);
+        }
+      }
+
+      if (chartInstance) chartInstance.destroy();
+      const ctx = document.getElementById("growthChart").getContext("2d");
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Monthly Contribution (₱)",
+              data: contributions,
+              backgroundColor: "rgba(128, 0, 128, 0.6)",
+              stack: "stack1"
+            },
+            {
+              label: "Dividend Earned (₱)",
+              data: dividends,
+              backgroundColor: "rgba(255, 160, 122, 0.6)",
+              stack: "stack1"
+            },
+            {
+              label: "Cumulative Fund Value (₱)",
+              data: cumulative,
+              backgroundColor: "rgba(255, 182, 193, 0.6)",
+              stack: "stack2"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { maxRotation: 90, minRotation: 45 }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              title: { display: true, text: "Amount (₱)" }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#4B0082",
+                font: { weight: "bold" }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 🧹 Clear results and chart
+    function clearContributions() {
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("lumpSumResult").innerHTML = "";
+      if (chartInstance) chartInstance.destroy();
+    }
+
+    // 📥 Placeholder for download feature
+    function downloadSummary() {
+      alert("Download feature not yet implemented.");
+    }
+
+    // 🚀 Initialize interest input on page load
+    window.onload = () => {
+      toggleInterestInputs();
+    };
+  </script>
+</body>
+</html>
