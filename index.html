@@ -2,13 +2,15 @@
 <html>
 <head>
   <!-- ✅ Meta and font setup -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MP2 Contribution & Retirement Simulator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- ✅ Font and Chart.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- ✅ Pastel-themed styling -->
+  <!-- ✅ Styling: Pastel theme + mobile-friendly layout -->
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
@@ -24,6 +26,7 @@
       text-align: center;
     }
 
+    /* ✅ Main layout container */
     .container {
       display: flex;
       flex-wrap: nowrap;
@@ -31,6 +34,7 @@
       align-items: stretch;
     }
 
+    /* ✅ Left and right panels */
     .left, .right {
       flex: 1;
       min-width: 300px;
@@ -40,6 +44,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
+    /* ✅ Orange separator between panels */
     .separator {
       width: 4px;
       background-color: orange;
@@ -47,10 +52,11 @@
       min-height: 400px;
     }
 
+    /* ✅ Inputs and dropdowns */
     input[type="number"], select {
       width: 100%;
       font-size: 14px;
-      padding: 8px;
+      padding: 10px;
       margin-bottom: 12px;
       border: 1px solid #e0cfe0;
       border-radius: 8px;
@@ -58,9 +64,10 @@
       color: #5c4b51;
     }
 
+    /* ✅ Buttons */
     button {
-      font-size: 14px;
-      padding: 10px 16px;
+      font-size: 15px;
+      padding: 12px 16px;
       margin: 6px 0;
       width: 100%;
       background-color: #d8b4e2;
@@ -76,6 +83,7 @@
       background-color: #caa0d6;
     }
 
+    /* ✅ Tables */
     table {
       width: 100%;
       font-size: 13px;
@@ -98,6 +106,7 @@
       border: 1px solid #f0e0f5;
     }
 
+    /* ✅ Chart container */
     #chartContainer {
       margin-top: 30px;
       background-color: #fff8fc;
@@ -111,6 +120,7 @@
       height: auto !important;
     }
 
+    /* ✅ Footer */
     footer {
       text-align: center;
       margin-top: 40px;
@@ -121,10 +131,47 @@
       border-radius: 8px;
     }
 
+    /* ✅ Mobile-friendly layout */
     @media screen and (max-width: 768px) {
+      body {
+        padding: 10px;
+        font-size: 15px;
+      }
+
+      h2, h3 {
+        font-size: 18px;
+        margin-top: 10px;
+      }
+
       .container {
         flex-direction: column;
+        gap: 10px;
       }
+
+      .left, .right {
+        padding: 16px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        padding: 12px;
+        font-size: 15px;
+      }
+
+      input[type="number"], select {
+        font-size: 15px;
+        padding: 10px;
+      }
+
+      #chartContainer {
+        padding: 10px;
+      }
+
+      canvas {
+        max-width: 100%;
+        height: auto !important;
+      }
+
       .separator {
         display: none;
       }
@@ -132,22 +179,49 @@
   </style>
 </head>
 <body>
+  <!-- ✅ Page Title -->
   <h2>MP2 Contribution & Retirement Simulator</h2>
 
+  <!-- ✅ Simulator Explanation Section -->
+  <div style="background-color:#fff0f6; padding:16px; border-radius:12px; margin-bottom:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+    <h3 style="text-align:center; color:#a678b4;">How This Simulator Works</h3>
+    <p style="line-height:1.6; color:#5c4b51;">
+      This tool helps you plan and visualize your savings with the <strong>Pag-IBIG MP2 program</strong>. You can:
+    </p>
+    <ul style="color:#5c4b51;">
+      <li><strong>Set a fund goal</strong> and calculate the monthly contribution needed to reach it.</li>
+      <li><strong>Choose between reinvested or payout dividends</strong> to see how compounding affects growth.</li>
+      <li><strong>Adjust interest rates</strong> yearly or use a fixed rate to simulate realistic returns.</li>
+      <li><strong>Plan for passive income</strong> by setting a monthly dividend goal and calculating the required lump sum.</li>
+      <li><strong>View a growth chart</strong> showing contributions, dividends, and total fund value over time.</li>
+    </ul>
+    <p style="line-height:1.6; color:#5c4b51;">
+      This simulator is designed to be simple, visual, and emotionally positive helping you feel confident and joyful about your financial future. 💖  </p>
+     Created with care by <strong>Giesel Cornel</strong> &copy; 2025. All rights reserved.
+    </p>
+
+  </div>
+
+  <!-- ✅ Main layout container -->
   <div class="container">
-    <!-- ✅ Left Panel -->
+    <!-- ✅ Left Panel: Fund Goal Planner -->
     <div class="left">
+      <h3 style="text-align:center; color:#a678b4;">Fund Goal Planner</h3>
+
+      <!-- 🔧 Interest Rate Mode Selector -->
       <label for="interestMode">Interest Rate Mode:</label>
       <select id="interestMode" onchange="toggleInterestInputs()">
         <option value="fixed">Fixed Rate</option>
         <option value="yearly">Yearly Rates</option>
       </select>
 
+      <!-- 🔧 Interest Rate Inputs (dynamic based on mode) -->
       <div id="interestInputs">
         <label for="fixedRate">Projected Annual Interest Rate (%):</label>
         <input type="number" id="fixedRate" value="6.5" step="0.1">
       </div>
 
+      <!-- 📆 Duration and Dividend Option -->
       <label for="duration">Investment Duration (Years):</label>
       <select id="duration">
         <option value="5">5 Years</option>
@@ -162,46 +236,52 @@
         <option value="false">Payout (No Compounding)</option>
       </select>
 
+      <!-- 🎯 Fund Goal Input -->
       <label for="goalAmount">Fund Goal (₱):</label>
       <input type="number" id="goalAmount" value="900000" step="1000">
       <button onclick="calculateRequiredMonthly()">Calculate Monthly to Reach Goal</button>
 
+      <!-- 📊 Monthly Contribution Result -->
       <div id="result"></div>
 
+      <!-- 📈 Chart Display -->
       <div id="chartContainer">
         <canvas id="growthChart"></canvas>
       </div>
     </div>
 
-    <!-- ✅ Orange Separator -->
+    <!-- 🟧 Orange Separator -->
     <div class="separator"></div>
 
-    <!-- ✅ Right Panel -->
+    <!-- ✅ Right Panel: Monthly Dividend Goal Planner -->
     <div class="right">
-      <div style="background:#fff0f6; padding:16px; border-radius:12px; margin-bottom:20px;">
-        <h3>Monthly Dividend Goal Planner</h3>
-        <label for="monthlyDividendGoal">Monthly Dividend Goal (₱):</label>
-        <input type="number" id="monthlyDividendGoal" value="2500" step="100">
-        <label for="monthlyRate">Projected Annual Interest Rate (%):</label>
-        <input type="number" id="monthlyRate" value="6.5" step="0.1">
-        <button onclick="calculateMonthlyDividendLumpSum()">Calculate Lump Sum</button>
-      </div>
+      <h3 style="text-align:center; color:#a678b4;">Monthly Dividend Goal Planner</h3>
 
+      <!-- 💸 Monthly Dividend Goal Inputs -->
+      <label for="monthlyDividendGoal">Monthly Dividend Goal (₱):</label>
+      <input type="number" id="monthlyDividendGoal" value="2500" step="100">
+
+      <label for="monthlyRate">Projected Annual Interest Rate (%):</label>
+      <input type="number" id="monthlyRate" value="6.5" step="0.1">
+      <button onclick="calculateMonthlyDividendLumpSum()">Calculate Lump Sum</button>
+
+      <!-- 🧮 Lump Sum Result -->
       <div id="lumpSumResult"></div>
 
+      <!-- 📥 Action Buttons -->
       <button onclick="downloadSummary()">Download Summary</button>
       <button onclick="clearContributions()">Clear Contributions</button>
     </div>
   </div>
 
+  <!-- ✅ Footer with creator info -->
   <footer>
     Created with care by <strong>Giesel Cornel</strong> &copy; 2025. All rights reserved.
   </footer>
-
-  <!-- ✅ JavaScript Logic -->
-  <script>
+<script>
     let chartInstance = null;
 
+    // 🔄 Toggle interest rate input fields based on selected mode
     function toggleInterestInputs() {
       const mode = document.getElementById("interestMode").value;
       const container = document.getElementById("interestInputs");
@@ -224,6 +304,7 @@
       }
     }
 
+    // 📊 Get interest rates array based on mode
     function getYearlyRates() {
       const mode = document.getElementById("interestMode").value;
       const duration = parseInt(document.getElementById("duration").value);
@@ -232,7 +313,7 @@
         const rate = parseFloat(document.getElementById("fixedRate").value) || 0;
         return Array(duration).fill(rate);
       } else {
-  const rates = [
+        const rates = [
           parseFloat(document.getElementById("rateY1").value) || 0,
           parseFloat(document.getElementById("rateY2").value) || 0,
           parseFloat(document.getElementById("rateY3").value) || 0,
@@ -417,7 +498,7 @@
               labels: {
                 color: "#4B0082",
                 font: { weight: "bold" }
-              }
+        }
             }
           }
         }
@@ -431,14 +512,14 @@
       if (chartInstance) chartInstance.destroy();
     }
 
-    // 📥 Placeholder for download feature
+    // 📥 Placeholder for future download feature
     function downloadSummary() {
       alert("Download feature not yet implemented.");
     }
 
     // 🚀 Initialize interest input on page load
     window.onload = () => {
-      toggleInterestInputs();
+      toggleInterestInputs(); // Show correct input fields based on default mode
     };
   </script>
 </body>
