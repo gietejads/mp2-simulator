@@ -1,526 +1,399 @@
 <!DOCTYPE html>
-<html>
+<html lang="tl">
 <head>
-  <!-- ✅ Meta and font setup -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MP2 Contribution & Retirement Simulator</title>
-
-  <!-- ✅ Font and Chart.js -->
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- ✅ Styling: Pastel theme + mobile-friendly layout -->
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
       background-color: #fef6fb;
       color: #5c4b51;
       padding: 20px;
-      font-size: 16px;
     }
-
     h2, h3 {
       color: #a678b4;
-      margin-top: 20px;
       text-align: center;
     }
-
-    /* ✅ Main layout container */
     .container {
       display: flex;
-      flex-wrap: nowrap;
+      flex-direction: column;
       gap: 20px;
-      align-items: stretch;
     }
-
-    /* ✅ Left and right panels */
-    .left, .right {
-      flex: 1;
-      min-width: 300px;
-      padding: 20px;
+    .panel {
       background-color: #fff8fc;
+      padding: 20px;
       border-radius: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-
-    /* ✅ Orange separator between panels */
-    .separator {
-      width: 4px;
-      background-color: orange;
-      border-radius: 2px;
-      min-height: 400px;
-    }
-
-    /* ✅ Inputs and dropdowns */
-    input[type="number"], select {
-      width: 100%;
-      font-size: 14px;
-      padding: 10px;
-      margin-bottom: 12px;
-      border: 1px solid #e0cfe0;
-      border-radius: 8px;
-      background-color: #fff0f6;
-      color: #5c4b51;
-    }
-
-    /* ✅ Buttons */
-    button {
-      font-size: 15px;
-      padding: 12px 16px;
-      margin: 6px 0;
-      width: 100%;
+    .toggle {
       background-color: #d8b4e2;
       color: #4b3b47;
+      padding: 10px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: background-color 0.3s ease;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
-
+    .content {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    input, select, button {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e0cfe0;
+      font-size: 14px;
+    }
+    button {
+      background-color: #d8b4e2;
+      color: #4b3b47;
+      cursor: pointer;
+    }
     button:hover {
       background-color: #caa0d6;
     }
-
-    /* ✅ Tables */
     table {
       width: 100%;
-      font-size: 13px;
       border-collapse: collapse;
-      background-color: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       margin-top: 10px;
+      font-size: 13px;
     }
-
+    th, td {
+      border: 1px solid #f0e0f5;
+      padding: 6px;
+      text-align: center;
+    }
     th {
       background-color: #f3d9fa;
-      color: #4b3b47;
-      padding: 8px;
     }
-
-    td {
-      padding: 6px;
-      border: 1px solid #f0e0f5;
-    }
-
-    /* ✅ Chart container */
-    #chartContainer {
-      margin-top: 30px;
-      background-color: #fff8fc;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    canvas {
-      width: 100% !important;
-      height: auto !important;
-    }
-
-    /* ✅ Footer */
     footer {
       text-align: center;
       margin-top: 40px;
       font-size: 14px;
       color: #a678b4;
-      background: #fff0f6;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    /* ✅ Mobile-friendly layout */
-    @media screen and (max-width: 768px) {
-      body {
-        padding: 10px;
-        font-size: 15px;
-      }
-
-      h2, h3 {
-        font-size: 18px;
-        margin-top: 10px;
-      }
-
-      .container {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .left, .right {
-        padding: 16px;
-        margin-bottom: 10px;
-      }
-
-      button {
-        padding: 12px;
-        font-size: 15px;
-      }
-
-      input[type="number"], select {
-        font-size: 15px;
-        padding: 10px;
-      }
-
-      #chartContainer {
-        padding: 10px;
-      }
-
-      canvas {
-        max-width: 100%;
-        height: auto !important;
-      }
-
-      .separator {
-        display: none;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- ✅ Page Title -->
   <h2>MP2 Contribution & Retirement Simulator</h2>
+  <p style="text-align:center; font-size:16px; color:#5c4b51; margin-top:-10px; line-height:1.6;">
+    Kabayan, this simulator is designed to be simple, visual, and emotionally positive  helping you feel confident and joyful about your financial future. 💖<br><br>
 
-  <!-- ✅ Simulator Explanation Section -->
-  <div style="background-color:#fff0f6; padding:16px; border-radius:12px; margin-bottom:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
-    <h3 style="text-align:center; color:#a678b4;">How This Simulator Works</h3>
-    <p style="line-height:1.6; color:#5c4b51;">
-      This tool helps you plan and visualize your savings with the <strong>Pag-IBIG MP2 program</strong>. You can:
-    </p>
-    <ul style="color:#5c4b51;">
-      <li><strong>Set a fund goal</strong> and calculate the monthly contribution needed to reach it.</li>
-      <li><strong>Choose between reinvested or payout dividends</strong> to see how compounding affects growth.</li>
-      <li><strong>Adjust interest rates</strong> yearly or use a fixed rate to simulate realistic returns.</li>
-      <li><strong>Plan for passive income</strong> by setting a monthly dividend goal and calculating the required lump sum.</li>
-      <li><strong>View a growth chart</strong> showing contributions, dividends, and total fund value over time.</li>
-    </ul>
-    <p style="line-height:1.6; color:#5c4b51;">
-      This simulator is designed to be simple, visual, and emotionally positive helping you feel confident and joyful about your financial future. 💖  </p>
-     Created with care by <strong>Giesel Cornel</strong> &copy; 2025. All rights reserved.
-    </p>
+    If you're new to saving or have never heard of <strong>Pag-IBIG MP2</strong>, don't worry you're in the right place. MP2 is a government-backed savings program in the Philippines that lets you grow your money safely with higher dividends than regular savings accounts. You can contribute monthly, earn annual dividends, and choose whether to reinvest or withdraw your earnings.<br><br>
 
-  </div>
+    This tool helps you explore how your money can grow over time. Whether you're saving for retirement, a dream home, your children's future, or simply want peace of mind, this simulator will guide you step by step. No financial background needed just your goals, your timeline, and your hope for a better tomorrow. 🌱<br><br>
 
-  <!-- ✅ Main layout container -->
-  <div class="container">
-    <!-- ✅ Left Panel: Fund Goal Planner -->
-    <div class="left">
-      <h3 style="text-align:center; color:#a678b4;">Fund Goal Planner</h3>
+    Every peso you save is a seed of possibility. With consistency, clarity, and courage, you can build a future that feels secure, beautiful, and free. Financial freedom isn’t just about numbers it’s about choices, dignity, and joy. You deserve that. 🌸<br><br>
 
-      <!-- 🔧 Interest Rate Mode Selector -->
-      <label for="interestMode">Interest Rate Mode:</label>
-      <select id="interestMode" onchange="toggleInterestInputs()">
-        <option value="fixed">Fixed Rate</option>
-        <option value="yearly">Yearly Rates</option>
-      </select>
+    Let this be your starting point. Explore, plan, and dream boldly. Your journey to abundance begins here and you’re not alone.<br><br>
 
-      <!-- 🔧 Interest Rate Inputs (dynamic based on mode) -->
-      <div id="interestInputs">
-        <label for="fixedRate">Projected Annual Interest Rate (%):</label>
-        <input type="number" id="fixedRate" value="6.5" step="0.1">
-      </div>
+    Created with care by <strong>Giesel Cornel</strong> — empowering you to build a life of purpose, peace, and prosperity.
+  </p>
+<div class="container">
+  <!-- 🎯 FUND GOAL PLANNER -->
+  <div class="panel">
+    <button class="toggle" onclick="toggleSection('fundGoal')">🎯 Fund Goal Planner</button>
+    <div class="content" id="fundGoal">
+      <p><strong>Para saan ito?</strong> Gusto mong malaman kung magkano ang dapat mong ihulog buwan-buwan para maabot ang target fund mo sa loob ng ilang taon. Perfect ito kung may goal ka tulad ng retirement, bahay, o edukasyon ng anak.</p>
 
-      <!-- 📆 Duration and Dividend Option -->
-      <label for="duration">Investment Duration (Years):</label>
+      <label>🎯 Target Fund (₱):</label>
+      <input type="number" id="goalAmount" value="500000" />
+
+      <label>⏳ Duration (Taon):</label>
       <select id="duration">
-        <option value="5">5 Years</option>
-        <option value="10">10 Years</option>
-        <option value="15">15 Years</option>
-        <option value="20">20 Years</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
       </select>
 
-      <label for="reinvest">Dividend Option:</label>
+      <label>📈 Annual Interest Rate (%):</label>
+      <input type="number" id="fixedRate" value="6.5" step="0.1" />
+
+      <label>💼 Dividend Option:</label>
       <select id="reinvest">
         <option value="true">Reinvest (Compounded)</option>
         <option value="false">Payout (No Compounding)</option>
       </select>
 
-      <!-- 🎯 Fund Goal Input -->
-      <label for="goalAmount">Fund Goal (₱):</label>
-      <input type="number" id="goalAmount" value="900000" step="1000">
-      <button onclick="calculateRequiredMonthly()">Calculate Monthly to Reach Goal</button>
-
-      <!-- 📊 Monthly Contribution Result -->
+      <button onclick="calculateRequiredMonthly()">🧮 I-compute ang Monthly Contribution</button>
       <div id="result"></div>
 
-      <!-- 📈 Chart Display -->
       <div id="chartContainer">
         <canvas id="growthChart"></canvas>
       </div>
     </div>
+  </div>
+ <!-- 💸 MONTHLY DIVIDEND GOAL PLANNER -->
+  <div class="panel">
+    <button class="toggle" onclick="toggleSection('monthlyDividend')">💸 Monthly Dividend Goal Planner</button>
+    <div class="content" id="monthlyDividend">
+      <p><strong>Para saan ito?</strong> Gusto mong kumita ng ₱X kada buwan mula sa MP2 dividends? Dito mo malalaman kung gaano kalaking ipon ang kailangan mo para maabot ang target na passive income mo.</p>
 
-    <!-- 🟧 Orange Separator -->
-    <div class="separator"></div>
+      <label>💰 Target Monthly Dividend (₱):</label>
+      <input type="number" id="monthlyDividendGoal" value="2000" />
 
-    <!-- ✅ Right Panel: Monthly Dividend Goal Planner -->
-    <div class="right">
-      <h3 style="text-align:center; color:#a678b4;">Monthly Dividend Goal Planner</h3>
+      <label>📈 Annual Interest Rate (%):</label>
+      <input type="number" id="monthlyRate" value="6.5" step="0.1" />
 
-      <!-- 💸 Monthly Dividend Goal Inputs -->
-      <label for="monthlyDividendGoal">Monthly Dividend Goal (₱):</label>
-      <input type="number" id="monthlyDividendGoal" value="2500" step="100">
-
-      <label for="monthlyRate">Projected Annual Interest Rate (%):</label>
-      <input type="number" id="monthlyRate" value="6.5" step="0.1">
-      <button onclick="calculateMonthlyDividendLumpSum()">Calculate Lump Sum</button>
-
-      <!-- 🧮 Lump Sum Result -->
+      <button onclick="calculateMonthlyDividendLumpSum()">🧮 I-compute ang Required Lump Sum</button>
       <div id="lumpSumResult"></div>
-
-      <!-- 📥 Action Buttons -->
-      <button onclick="downloadSummary()">Download Summary</button>
-      <button onclick="clearContributions()">Clear Contributions</button>
     </div>
   </div>
+ <!-- 📈 SAVINGS PROJECTION PLANNER -->
+  <div class="panel">
+    <button class="toggle" onclick="toggleSection('savingsProjection')">📈 Savings Projection Planner</button>
+    <div class="content" id="savingsProjection">
+      <p><strong>Para saan ito?</strong> Gusto mong malaman kung gaano kalaki ang magiging ipon mo kung maghuhulog ka ng ₱X kada buwan sa loob ng ilang taon. Makikita mo rin kung magkano ang kikitain mong dividends.</p>
 
-  <!-- ✅ Footer with creator info -->
+      <label>💵 Monthly Savings (₱):</label>
+      <input type="number" id="monthlySavings" value="3000" />
+
+      <label>📈 Annual Interest Rate (%):</label>
+      <input type="number" id="savingsRate" value="6.5" step="0.1" />
+
+      <label>⏳ Duration (Taon):</label>
+      <select id="savingsDuration">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+      </select>
+
+      <button onclick="calculateSavingsProjection()">🧮 I-compute ang Projection</button>
+      <div id="savingsProjectionResult"></div>
+    </div>
+  </div>
+ <!-- 📘 SUMMARY PANEL -->
+  <div class="panel">
+    <h3 style="text-align:center; color:#a678b4;">📘 Summary of your MP2 Planner</h3>
+    <p style="text-align:center;">Makikita mo dito ang lahat ng resulta mula sa tatlong planner. Pwede mo itong i-save gamit ang <strong>Print > Save as PDF</strong> sa browser mo.</p>
+    <div id="summaryContent" style="line-height:1.6;"></div>
+    <div style="text-align:center; margin-top:20px;">
+      <button onclick="window.print()">🖨️ I-print o I-save bilang PDF</button>
+    </div>
+  </div>
+ <!-- ⚠️ DISCLAIMER + FOOTER -->
   <footer>
-    Created with care by <strong>Giesel Cornel</strong> &copy; 2025. All rights reserved.
+    <p style="font-size:14px; color:#a678b4; text-align:center; margin-bottom:10px;">
+      Created with care by <strong>Giesel Cornel</strong> &copy; 2025.V2
+    </p>
+    <p style="font-size:13px; color:#8c6c9e; text-align:center;">
+      <strong>Disclaimer:</strong> This simulator is intended for educational and personal planning purposes only. It does not constitute professional financial advice. For personalized guidance, please consult a licensed financial advisor or your trusted financial institution.
+    </p>
   </footer>
+</div> <!-- Close container -->
 <script>
-    let chartInstance = null;
+  let chartInstance = null;
 
-    // 🔄 Toggle interest rate input fields based on selected mode
-    function toggleInterestInputs() {
-      const mode = document.getElementById("interestMode").value;
-      const container = document.getElementById("interestInputs");
-      container.innerHTML = "";
+  // 🔄 Expand/Collapse Section
+  function toggleSection(id) {
+    const section = document.getElementById(id);
+    section.style.display = section.style.display === "none" || section.style.display === "" ? "block" : "none";
+  }
 
-      if (mode === "fixed") {
-        container.innerHTML = `
-          <label for="fixedRate">Projected Annual Interest Rate (%):</label>
-          <input type="number" id="fixedRate" value="6.5" step="0.1">
-        `;
-      } else {
-        container.innerHTML = `
-          <label>Projected Annual Dividend Rate per Year (%):</label><br>
-          <input type="number" id="rateY1" value="6.5" step="0.1"> Year 1<br>
-          <input type="number" id="rateY2" value="6.5" step="0.1"> Year 2<br>
-          <input type="number" id="rateY3" value="6.5" step="0.1"> Year 3<br>
-          <input type="number" id="rateY4" value="6.5" step="0.1"> Year 4<br>
-          <input type="number" id="rateY5" value="6.5" step="0.1"> Year 5<br><br>
-        `;
+  // 💸 Monthly Dividend Goal Planner
+  function calculateMonthlyDividendLumpSum() {
+    const monthlyGoal = parseFloat(document.getElementById("monthlyDividendGoal").value) || 0;
+    const annualRate = parseFloat(document.getElementById("monthlyRate").value) || 0;
+    const annualGoal = monthlyGoal * 12;
+    const r = annualRate / 100;
+    if (r === 0) {
+      document.getElementById("lumpSumResult").innerHTML = "<p style='color:red;'>⚠️ Interest rate must be greater than 0.</p>";
+      return;
+    }
+    const lumpSum = annualGoal / r;
+    const result = `
+      <h4>💸 Monthly Dividend Goal Result</h4>
+      <table>
+        <tr><th>Monthly Goal</th><th>Annual Target</th><th>Required Lump Sum</th></tr>
+        <tr>
+          <td>₱${monthlyGoal.toLocaleString()}</td>
+          <td>₱${annualGoal.toLocaleString()}</td>
+          <td>₱${lumpSum.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+        </tr>
+      </table>
+      <p>To earn ₱${monthlyGoal.toLocaleString()} per month at ${annualRate}% annual interest, you need to save ₱${lumpSum.toLocaleString(undefined, {minimumFractionDigits:2})}.</p>
+    `;
+    document.getElementById("lumpSumResult").innerHTML = result;
+    updateSummaryPanel();
+  }
+
+  // 📈 Savings Projection Planner
+  function calculateSavingsProjection() {
+    const monthly = parseFloat(document.getElementById("monthlySavings").value) || 0;
+    const rate = parseFloat(document.getElementById("savingsRate").value) || 0;
+    const years = parseInt(document.getElementById("savingsDuration").value);
+    let fund = 0, totalContribution = 0, totalDividend = 0;
+
+    for (let y = 0; y < years; y++) {
+      for (let m = 0; m < 12; m++) {
+        fund += monthly;
+        totalContribution += monthly;
       }
+      const dividend = fund * (rate / 100);
+      fund += dividend;
+      totalDividend += dividend;
     }
 
-    // 📊 Get interest rates array based on mode
-    function getYearlyRates() {
-      const mode = document.getElementById("interestMode").value;
-      const duration = parseInt(document.getElementById("duration").value);
+    document.getElementById("savingsProjectionResult").innerHTML = `
+      <h4>📈 Savings Projection Result</h4>
+      <table>
+        <tr><th>Monthly</th><th>Years</th><th>Invested</th><th>Dividends</th><th>Total</th></tr>
+        <tr>
+          <td>₱${monthly.toLocaleString()}</td>
+          <td>${years}</td>
+          <td>₱${totalContribution.toLocaleString()}</td>
+          <td>₱${totalDividend.toLocaleString()}</td>
+          <td>₱${fund.toLocaleString()}</td>
+        </tr>
+      </table>
+    `;
+    updateSummaryPanel();
+  }
 
-      if (mode === "fixed") {
-        const rate = parseFloat(document.getElementById("fixedRate").value) || 0;
-        return Array(duration).fill(rate);
-      } else {
-        const rates = [
-          parseFloat(document.getElementById("rateY1").value) || 0,
-          parseFloat(document.getElementById("rateY2").value) || 0,
-          parseFloat(document.getElementById("rateY3").value) || 0,
-          parseFloat(document.getElementById("rateY4").value) || 0,
-          parseFloat(document.getElementById("rateY5").value) || 0
-        ];
-        while (rates.length < duration) {
-          rates.push(rates[rates.length - 1]); // Extend with last known rate
-        }
-        return rates;
-      }
-    }
+  // 🎯 Fund Goal Planner
+  function calculateRequiredMonthly() {
+    const goal = parseFloat(document.getElementById("goalAmount").value) || 0;
+    const duration = parseInt(document.getElementById("duration").value);
+    const reinvest = document.getElementById("reinvest").value === "true";
+    const rate = parseFloat(document.getElementById("fixedRate").value) || 0;
 
-    // 💸 Calculate required lump sum to achieve monthly dividend goal
-    function calculateMonthlyDividendLumpSum() {
-      const monthlyGoal = parseFloat(document.getElementById("monthlyDividendGoal").value) || 0;
-      const annualRate = parseFloat(document.getElementById("monthlyRate").value) || 0;
-      const annualGoal = monthlyGoal * 12;
-      const r = annualRate / 100;
+    let monthly = 0;
+    let totalContribution = 0;
+    let totalDividend = 0;
 
-      if (r === 0) {
-        document.getElementById("lumpSumResult").innerHTML = "<p style='color:red;'>⚠️ Interest rate must be greater than 0.</p>";
-        return;
-      }
-
-      const lumpSum = annualGoal / r;
-
-      const result = `
-        <h3>Monthly Dividend Goal Simulation</h3>
-        <table>
-          <tr>
-            <th>Monthly Goal</th>
-            <th>Annual Dividend Target</th>
-            <th>Required Lump Sum</th>
-          </tr>
-          <tr>
-            <td>₱${monthlyGoal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td>₱${annualGoal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td>₱${lumpSum.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-          </tr>
-        </table>
-        <p>This is the amount your fund must reach to sustainably pay ₱${monthlyGoal.toLocaleString()} per month at ${annualRate}% annual interest.</p>
-      `;
-
-      document.getElementById("lumpSumResult").innerHTML = result;
-    }
-
-    // 🎯 Calculate monthly contribution needed to reach fund goal
-    function calculateRequiredMonthly() {
-      const goal = parseFloat(document.getElementById("goalAmount").value) || 0;
-      const duration = parseInt(document.getElementById("duration").value);
-      const reinvest = document.getElementById("reinvest").value === "true";
-      const rates = getYearlyRates().map(r => r / 100);
-
-      let monthly = 0;
-      let totalContribution = 0;
-      let totalDividend = 0;
-
-      if (reinvest) {
-        let low = 0, high = goal * 2;
-        for (let i = 0; i < 100; i++) {
-          monthly = (low + high) / 2;
-          let fund = 0;
-          totalContribution = 0;
-          totalDividend = 0;
-
-          for (let y = 0; y < duration; y++) {
-            for (let m = 0; m < 12; m++) {
-              fund += monthly;
-              totalContribution += monthly;
-            }
-            const dividend = fund * rates[y];
-            fund += dividend;
-            totalDividend += dividend;
-          }
-
-          if (fund < goal) low = monthly;
-          else high = monthly;
-        }
-      } else {
-        const totalMonths = duration * 12;
-        monthly = goal / totalMonths;
-        totalContribution = monthly * totalMonths;
+    if (reinvest) {
+      let low = 0, high = goal * 2;
+      for (let i = 0; i < 100; i++) {
+        monthly = (low + high) / 2;
+        let fund = 0;
+        totalContribution = 0;
         totalDividend = 0;
+
+        for (let y = 0; y < duration; y++) {
+          for (let m = 0; m < 12; m++) {
+            fund += monthly;
+            totalContribution += monthly;
+          }
+          const dividend = fund * (rate / 100);
+          fund += dividend;
+          totalDividend += dividend;
+        }
+
+        if (fund < goal) low = monthly;
+        else high = monthly;
       }
-
-      const resultHTML = `
-        <h3>Monthly Contribution Needed</h3>
-        <table>
-          <tr>
-            <th>Fund Goal</th>
-            <th>Duration</th>
-            <th>Monthly Contribution</th>
-            <th>Total Contribution</th>
-            <th>Total Dividend Earned</th>
-          </tr>
-          <tr>
-            <td>₱${goal.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td>${duration} years</td>
-            <td>₱${monthly.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td>₱${totalContribution.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-            <td>₱${totalDividend.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
-          </tr>
-        </table>
-        <p>This estimate assumes ${reinvest ? "reinvested dividends (compounded growth)" : "no reinvestment (linear growth)"}.</p>
-      `;
-
-      document.getElementById("result").innerHTML = resultHTML;
-      simulateChartFromMonthly(monthly);
+    } else {
+      const totalMonths = duration * 12;
+      monthly = goal / totalMonths;
+      totalContribution = monthly * totalMonths;
+      totalDividend = 0;
     }
 
-    // 📊 Render stacked bar chart with contributions, dividends, and cumulative fund
-    function simulateChartFromMonthly(monthlyContribution) {
-      const duration = parseInt(document.getElementById("duration").value);
-      const reinvest = document.getElementById("reinvest").value === "true";
-      const rates = getYearlyRates().map(r => r / 100);
+    document.getElementById("result").innerHTML = `
+      <h4>🎯 Fund Goal Result</h4>
+      <table>
+        <tr><th>Goal</th><th>Years</th><th>Monthly</th><th>Invested</th><th>Dividends</th></tr>
+        <tr>
+          <td>₱${goal.toLocaleString()}</td>
+          <td>${duration}</td>
+          <td>₱${monthly.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+          <td>₱${totalContribution.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+          <td>₱${totalDividend.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+        </tr>
+      </table>
+    `;
+    simulateChartFromMonthly(monthly, duration, rate, reinvest);
+    updateSummaryPanel();
+  }
 
-      let fund = 0;
-      const labels = [];
-      const contributions = [];
-      const dividends = [];
-      const cumulative = [];
+  // 📊 Chart Rendering
+  function simulateChartFromMonthly(monthly, duration, rate, reinvest) {
+    let fund = 0;
+    const labels = [];
+    const contributions = [];
+    const dividends = [];
+    const cumulative = [];
 
-      for (let y = 0; y < duration; y++) {
-        for (let m = 0; m < 12; m++) {
-          fund += monthlyContribution;
-          contributions.push(monthlyContribution);
-          if (reinvest && m === 11) {
-            const dividend = fund * rates[y];
-            dividends.push(dividend);
-            fund += dividend;
-          } else {
-            dividends.push(0);
-          }
-          cumulative.push(fund);
-          labels.push(`Y${y + 1}M${m + 1}`);
+    for (let y = 0; y < duration; y++) {
+      for (let m = 0; m < 12; m++) {
+        fund += monthly;
+        contributions.push(monthly);
+        labels.push(`Y${y + 1}M${m + 1}`);
+        if (reinvest && m === 11) {
+          const dividend = fund * (rate / 100);
+          dividends.push(dividend);
+          fund += dividend;
+        } else {
+          dividends.push(0);
         }
+        cumulative.push(fund);
       }
+    }
 
-      if (chartInstance) chartInstance.destroy();
-      const ctx = document.getElementById("growthChart").getContext("2d");
-      chartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "Monthly Contribution (₱)",
-              data: contributions,
-              backgroundColor: "rgba(128, 0, 128, 0.6)",
-              stack: "stack1"
-            },
-            {
-              label: "Dividend Earned (₱)",
-              data: dividends,
-              backgroundColor: "rgba(255, 160, 122, 0.6)",
-              stack: "stack1"
-            },
-            {
-              label: "Cumulative Fund Value (₱)",
-              data: cumulative,
-              backgroundColor: "rgba(255, 182, 193, 0.6)",
-              stack: "stack2"
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              stacked: true,
-              ticks: { maxRotation: 90, minRotation: 45 }
-            },
-            y: {
-              stacked: true,
-              beginAtZero: true,
-              title: { display: true, text: "Amount (₱)" }
-            }
+    if (chartInstance) chartInstance.destroy();
+    const ctx = document.getElementById("growthChart").getContext("2d");
+    chartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Monthly Contribution (₱)",
+            data: contributions,
+            backgroundColor: "rgba(128, 0, 128, 0.6)",
+            stack: "stack1"
           },
-          plugins: {
-            legend: {
-              labels: {
-                color: "#4B0082",
-                font: { weight: "bold" }
-        }
-            }
+          {
+            label: "Dividend Earned (₱)",
+            data: dividends,
+            backgroundColor: "rgba(255, 160, 122, 0.6)",
+            stack: "stack1"
+          },
+          {
+            label: "Cumulative Fund Value (₱)",
+            data: cumulative,
+            backgroundColor: "rgba(255, 182, 193, 0.6)",
+            stack: "stack2"
           }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true }
         }
-      });
-    }
+      }
+    });
+  }
 
-    // 🧹 Clear results and chart
-    function clearContributions() {
-      document.getElementById("result").innerHTML = "";
-      document.getElementById("lumpSumResult").innerHTML = "";
-      if (chartInstance) chartInstance.destroy();
-    }
+  // 📘 Update Summary Panel
+  function updateSummaryPanel() {
+    const fundGoal = document.getElementById("result")?.innerHTML || "<p>No Fund Goal data.</p>";
+    const dividendGoal = document.getElementById("lumpSumResult")?.innerHTML || "<p>No Dividend Goal data.</p>";
+    const savingsProjection = document.getElementById("savingsProjectionResult")?.innerHTML || "<p>No Savings Projection data.</p>";
 
-    // 📥 Placeholder for future download feature
-    function downloadSummary() {
-      alert("Download feature not yet implemented.");
-    }
-
-    // 🚀 Initialize interest input on page load
-    window.onload = () => {
-      toggleInterestInputs(); // Show correct input fields based on default mode
-    };
-  </script>
+    document.getElementById("summaryContent").innerHTML = `
+      ${fundGoal}
+      ${dividendGoal}
+      ${savingsProjection}
+      <p style="font-size:12px; text-align:center; margin-top:20px; color:#888;">
+        <em>This summary was generated using the MP2 Contribution & Retirement Simulator by Giesel Cornel.</em>
+      </p>
+    `;
+  }
+</script>
 </body>
 </html>
