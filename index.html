@@ -135,7 +135,7 @@
     <div class="panel">
       <button class="toggle" onclick="toggleSection('monthlyDividend')">💸 Monthly Dividend Goal Planner</button>
       <div class="content" id="monthlyDividend">
-        <p><strong>Para saan ito?</strong> Gusto mong kumita ng ₱X kada buwan mula sa MP2 dividends?Dito mo malalaman kung gaano kalaking ipon ang kailangan mo para maabot ang target na passive income mo.</p>
+        <p><strong>Para saan ito?</strong> Gusto mong kumita ng ₱X kada buwan mula sa MP2 dividends?</p>
         <label>💰 Target Monthly Dividend (₱):</label>
         <input type="text" id="monthlyDividendGoal" value="2000" />
         <label>📈 Annual Interest Rate (%):</label>
@@ -166,6 +166,40 @@
         <div id="savingsProjectionResult"></div>
       </div>
     </div>
+<!-- 🪙 LUMP SUM EARNINGS SIMULATOR -->
+<div class="panel">
+  <button class="toggle" onclick="toggleSection('lumpSumEarnings')">🪙 Lump Sum Earnings Simulator</button>
+  <div class="content" id="lumpSumEarnings">
+    <p><strong>Para saan ito?</strong> Gusto mong malaman kung gaano kalaki ang kikitain mo kung mag-iinvest ka ng lump sum (isang bagsakan o taunang hulog).</p>
+    <label>💰 Lump Sum Amount (₱):</label>
+    <input type="text" id="lumpSumAmount" value="100000" />
+    <label>📅 Contribution Type:</label>
+    <select id="lumpSumType">
+      <option value="oneTime">One-Time Lump Sum</option>
+      <option value="annual">Annual Lump Sum</option>
+    </select>
+    <label>⏳ Duration (Taon):</label>
+    <select id="lumpSumDuration">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20">20</option>
+    </select>
+    <label>📈 Annual Interest Rate (%):</label>
+    <input type="number" id="lumpSumRate" value="6.5" step="0.1" />
+    <label>💼 Dividend Option:</label>
+    <select id="lumpSumReinvest">
+      <option value="true">Reinvest (Compounded)</option>
+      <option value="false">Payout (No Compounding)</option>
+    </select>
+    <button onclick="calculateLumpSumEarnings()">🧮 I-compute ang Earnings</button>
+    <div id="lumpSumEarningsResult"></div>
+  </div>
+</div>
+
+
+
+<hr />
     <hr />
  <!-- 📘 SUMMARY PANEL -->
     <div class="panel">
@@ -183,7 +217,7 @@
     <!-- ⚠️ DISCLAIMER + FOOTER -->
     <footer>
       <p style="font-size:14px; color:#a678b4; text-align:center; margin-bottom:10px;">
-        Created with care by <strong>Giesel Cornel</strong> &copy; 2025.V2.1
+        Created with care by <strong>Giesel Cornel</strong> &copy; 2025.V2.2
       </p>
       <p style="font-size:13px; color:#8c6c9e; text-align:center;">
         <strong>Disclaimer:</strong> This simulator is intended for educational and personal planning purposes only. It does not constitute professional financial advice. For personalized guidance, please consult a licensed financial advisor or your trusted financial institution.
@@ -214,6 +248,8 @@
       formatInputWithCommas("goalAmount");
       formatInputWithCommas("monthlyDividendGoal");
       formatInputWithCommas("monthlySavings");
+      formatInputWithCommas("lumpSumAmount");
+
     };
 
     function calculateMonthlyDividendLumpSum() {
@@ -398,16 +434,18 @@
       });
     }
 
-    function updateSummaryPanel() {
-      const fundGoal = document.getElementById("result").innerText.trim();
-      const dividendGoal = document.getElementById("lumpSumResult").innerText.trim();
-      const savingsProjection = document.getElementById("savingsProjectionResult").innerText.trim();
-      document.getElementById("summaryContent").innerText =
-        "🎯 Fund Goal Planner:\n" + fundGoal + "\n\n" +
-        "💸 Monthly Dividend Goal Planner:\n" + dividendGoal + "\n\n" +
-        "📈 Savings Projection Planner:\n" + savingsProjection;
-    }
+  function updateSummaryPanel() {
+  const fundGoal = document.getElementById("result").innerText.trim();
+  const dividendGoal = document.getElementById("lumpSumResult").innerText.trim();
+  const savingsProjection = document.getElementById("savingsProjectionResult").innerText.trim();
+  const lumpSumEarnings = document.getElementById("lumpSumEarningsResult").innerText.trim();
 
+  document.getElementById("summaryContent").innerText =
+    "🎯 Fund Goal Planner:\n" + fundGoal + "\n\n" +
+    "💸 Monthly Dividend Goal Planner:\n" + dividendGoal + "\n\n" +
+    "📈 Savings Projection Planner:\n" + savingsProjection + "\n\n" +
+    "🪙 Lump Sum Earnings Simulator:\n" + lumpSumEarnings;
+}
     function copySummary() {
       const content = document.getElementById("summaryContent").innerText;
       navigator.clipboard.writeText(content).then(() => {
@@ -417,6 +455,65 @@
         }, 4000);
       });
     }
+   function calculateLumpSumEarnings() {
+  const amount = parseFloat(document.getElementById("lumpSumAmount").value.replace(/,/g, "")) || 0;
+  const type = document.getElementById("lumpSumType").value;
+  const years = parseInt(document.getElementById("lumpSumDuration").value);
+  const rate = parseFloat(document.getElementById("lumpSumRate").value) || 0;
+  const reinvest = document.getElementById("lumpSumReinvest").value === "true";
+
+  let fund = 0, totalContribution = 0, totalDividend = 0;
+  const breakdown = [];
+
+  for (let y = 0; y < years; y++) {
+    let startFund = fund;
+    let contribution = 0;
+
+    if (type === "annual") {
+      fund += amount;
+      contribution = amount;
+      totalContribution += amount;
+    } else if (type === "oneTime" && y === 0) {
+      fund += amount;
+      contribution = amount;
+      totalContribution += amount;
+    }
+
+    const dividend = fund * (rate / 100);
+    totalDividend += dividend;
+    if (reinvest) fund += dividend;
+
+    breakdown.push({
+      year: y + 1,
+      startFund: Math.round(startFund),
+      contribution: Math.round(contribution),
+      dividend: Math.round(dividend),
+      endFund: Math.round(fund)
+    });
+  }
+
+  const total = Math.round(fund);
+  let tableRows = breakdown.map(row => `
+    <tr>
+      <td>${row.year}</td>
+      <td>₱${row.startFund.toLocaleString()}</td>
+      <td>₱${row.contribution.toLocaleString()}</td>
+      <td>₱${row.dividend.toLocaleString()}</td>
+      <td>₱${row.endFund.toLocaleString()}</td>
+    </tr>
+  `).join("");
+
+  const result = `
+    <h4>🪙 Lump Sum Earnings Result</h4>
+    <p>After ${years} years, your lump sum investment will grow to <strong>₱${total.toLocaleString()}</strong> including ₱${Math.round(totalDividend).toLocaleString()} in dividends.</p>
+    <table>
+      <tr><th>Year</th><th>Start Fund</th><th>Contribution</th><th>Dividend</th><th>End Fund</th></tr>
+      ${tableRows}
+    </table>
+  `;
+  document.getElementById("lumpSumEarningsResult").innerHTML = result;
+  updateSummaryPanel();
+}
   </script>
 </body>
 </html>
